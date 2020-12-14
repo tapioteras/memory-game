@@ -15,19 +15,31 @@ const generateCards = (amount: number) => {
   ]
 }
 
+const toIdPair = ({ id, pair }) => id && pair ? `${id}-${pair}` : "not-set"
+
 const generateDeck = (amount: number = 24) => {
   const [cards] = useState([...generateCards(amount)])
-  console.log(cards)
+  const [flipped1, setFlipped1] = useState(null)
+  const [flipped2, setFlipped2] = useState(null)
   return <SimpleGrid columns={6} spacing={4}>
     {cards
       .map((contents, i) =>
         <Box
           key={`card-${i}`}
-          bg="tomato"
+          bg={[toIdPair(flipped1), toIdPair(flipped2)].includes(toIdPair(contents)) ? "white" : "tomato"}
           height={100}
           width={100}>
-          <Box padding={2} onClick={() => alert(i)}>
             {contents.image}
+          <Box padding={2} onClick={() => {
+            if (flipped1) {
+              setFlipped2(contents)
+            } else if (flipped2) {
+              setFlipped1(null)
+              setFlipped2(null)
+            } else {
+              setFlipped1(contents)
+            }
+          }}>
           </Box>
         </Box>)}
   </SimpleGrid>
