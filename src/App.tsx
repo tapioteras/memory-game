@@ -1,9 +1,21 @@
 import * as React from 'react';
-import {ChakraProvider, Box, SimpleGrid} from "@chakra-ui/react";
+import {Box, ChakraProvider, SimpleGrid} from "@chakra-ui/react";
+
+const withCardContents = () => <Box padding={2}>image here</Box>
 
 const generateDeck = (amount: number = 24) =>
   <SimpleGrid columns={6} spacing={4}>
-    {Array.from(Array(amount), (_, x) => x).map((k, i) => <Box key={`card-${i}`} bg="tomato" height={100} width={100}>card {i + 1}</Box>)}
+    {Array
+      .from(Array(amount), (_, x) => x)
+      .map(withCardContents)
+      .map((contents, i) =>
+        <Box
+          key={`card-${i}`}
+          bg="tomato"
+          height={100}
+          width={100}>
+          {contents}
+        </Box>)}
   </SimpleGrid>
 
 const App = () =>
