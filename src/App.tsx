@@ -1,5 +1,5 @@
 import * as React from 'react';
-import {Box, ChakraProvider, SimpleGrid} from "@chakra-ui/react";
+import {Box, ChakraProvider, Heading, SimpleGrid} from "@chakra-ui/react";
 import {useState} from "react";
 
 const generateCards = (amount: number) => {
@@ -32,8 +32,21 @@ const generateDeck = (amount: number = 24) => {
   const [cards] = useState(shuffle([...generateCards(amount)]))
   const [flipped1, setFlipped1] = useState(null)
   const [flipped2, setFlipped2] = useState(null)
+  const [players, setPlayers] = useState([{id: 1, active: true},{id:2, active: false}])
+  const currentPlayerId = players.find((p) => p.active === true).id
+  const lastPlayer = players.sort((a,b) => a.id < b.id ? 1 : -1)?.[0]?.id
   const [foundPairs, setFoundPairs] = useState([])
-  return <SimpleGrid columns={6} spacing={4}>
+  const scoreCard = players.map(p => ({ id: p.id, gotPairs: foundPairs
+      .filter(p2 => p2?.foundByPlayerId === p.id).length }))
+  const switchTurn = () => {
+    const nextPlayer = currentPlayerId < lastPlayer ? currentPlayerId + 1 : 1
+    setPlayers([...players.map(p => ({...p, active: p?.id === nextPlayer }))])
+  }
+  return <React.Fragment>
+    <Heading>{`Player ${currentPlayerId} turn`}</Heading>
+    <Heading>Scores:</Heading>
+    {scoreCard.map(sc => <Box>Player {sc.id}: {sc.gotPairs}</Box>)}
+    <SimpleGrid columns={6} spacing={4}>
     {cards
       .map((contents, i) =>
         <Box
@@ -44,13 +57,14 @@ const generateDeck = (amount: number = 24) => {
               if (flipped1.id === contents.id) {
                 setFlipped1(null)
                 setFlipped2(null)
-                setFoundPairs([...foundPairs, {...contents}])
+                setFoundPairs([...foundPairs, {...contents, foundByPlayerId: currentPlayerId}])
               } else {
                 setFlipped2(contents)
               }
             } else {
               setFlipped1(null)
               setFlipped2(null)
+              switchTurn()
             }
           }}
           key={`card-${i}`}
@@ -67,7 +81,7 @@ const generateDeck = (amount: number = 24) => {
             && contents.image}
           </Box>
         </Box>)}
-  </SimpleGrid>
+  </SimpleGrid></React.Fragment>
 }
 
 const App = () =>
