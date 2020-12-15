@@ -1,5 +1,5 @@
 import * as React from 'react';
-import {Box, ChakraProvider, Heading, SimpleGrid} from "@chakra-ui/react";
+import {Box, ChakraProvider, Flex, Heading, SimpleGrid} from "@chakra-ui/react";
 import {useState} from "react";
 
 const generateCards = (amount: number) => {
@@ -29,7 +29,7 @@ const shuffle = (a) => {
 }
 
 const generateDeck = (amount: number = 24) => {
-  const [cards] = useState(shuffle([...generateCards(amount)]))
+  const [cards, setCards] = useState(shuffle([...generateCards(amount)]))
   const [flipped1, setFlipped1] = useState(null)
   const [flipped2, setFlipped2] = useState(null)
   const [players, setPlayers] = useState([{id: 1, active: true},{id:2, active: false}])
@@ -38,18 +38,35 @@ const generateDeck = (amount: number = 24) => {
   const [foundPairs, setFoundPairs] = useState([])
   const scoreCard = players.map(p => ({ id: p.id, gotPairs: foundPairs
       .filter(p2 => p2?.foundByPlayerId === p.id).length }))
-  const switchTurn = () => {
-    const nextPlayer = currentPlayerId < lastPlayer ? currentPlayerId + 1 : 1
-    setPlayers([...players.map(p => ({...p, active: p?.id === nextPlayer }))])
+  const resetGame = () => {
+    setFoundPairs([])
+    setCards(shuffle([...generateCards(amount)]))
+    setFlipped1(null)
+    setFlipped2(null)
   }
-  return <React.Fragment>
+  const showWinningPlayer = () => {
+    const winningPlayerId = scoreCard.sort((a,b) => a.gotPairs < b.gotPairs ? 1 : -1)?.[0]?.id
+    alert(`Player ${winningPlayerId} won!`)
+    resetGame()
+  }
+  const switchTurn = () => {
+    if (foundPairs.length < amount) {
+      const nextPlayer = currentPlayerId < lastPlayer ? currentPlayerId + 1 : 1
+      setPlayers([...players.map(p => ({...p, active: p?.id === nextPlayer }))])
+    }
+  }
+  if (foundPairs.length === amount) {
+    showWinningPlayer()
+  }
+  return <Box margin={5}>
     <Heading>{`Player ${currentPlayerId} turn`}</Heading>
-    <Heading>Scores:</Heading>
-    {scoreCard.map(sc => <Box>Player {sc.id}: {sc.gotPairs}</Box>)}
-    <SimpleGrid columns={6} spacing={4}>
+    <Heading size="m">Scores:</Heading>
+    <Flex wrap={"wrap"}>
+    {scoreCard.map(sc => <Heading size="m">Player {sc.id}: {sc.gotPairs}</Heading>)}
+    <Flex flexWrap={"wrap"} columns={6} spacing={4}>
     {cards
       .map((contents, i) =>
-        <Box
+        <Box margin={4}
           onClick={() => {
             if (!flipped1) {
               setFlipped1(contents)
@@ -81,7 +98,7 @@ const generateDeck = (amount: number = 24) => {
             && contents.image}
           </Box>
         </Box>)}
-  </SimpleGrid></React.Fragment>
+    </Flex></Flex></Box>
 }
 
 const App = () =>
