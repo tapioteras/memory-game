@@ -32,6 +32,7 @@ const generateDeck = (amount: number = 24) => {
   const [cards] = useState(shuffle([...generateCards(amount)]))
   const [flipped1, setFlipped1] = useState(null)
   const [flipped2, setFlipped2] = useState(null)
+  const [foundPairs, setFoundPairs] = useState([])
   return <SimpleGrid columns={6} spacing={4}>
     {cards
       .map((contents, i) =>
@@ -40,19 +41,30 @@ const generateDeck = (amount: number = 24) => {
             if (!flipped1) {
               setFlipped1(contents)
             } else if (!flipped2) {
-              setFlipped2(contents)
+              if (flipped1.id === contents.id) {
+                setFlipped1(null)
+                setFlipped2(null)
+                setFoundPairs([...foundPairs, {...contents}])
+              } else {
+                setFlipped2(contents)
+              }
             } else {
               setFlipped1(null)
               setFlipped2(null)
             }
           }}
           key={`card-${i}`}
-          bg={[toIdPair(flipped1), toIdPair(flipped2)].includes(toIdPair(contents)) ? "white" : "tomato"}
+          bg={[toIdPair(flipped1), toIdPair(flipped2)].includes(toIdPair(contents))
+          || foundPairs.some(fp => fp.id === contents?.id)
+            ? "white"
+            : "tomato"
+          }
           height={100}
           width={100}>
-          <Box padding={2}
-          >
-            {[toIdPair(flipped1), toIdPair(flipped2)].includes(toIdPair(contents)) && contents.image}
+          <Box padding={2}>
+            {!foundPairs.some(fp => fp.id === contents?.id)
+            && [toIdPair(flipped1), toIdPair(flipped2)].includes(toIdPair(contents))
+            && contents.image}
           </Box>
         </Box>)}
   </SimpleGrid>
