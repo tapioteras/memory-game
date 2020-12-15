@@ -15,7 +15,7 @@ const generateCards = (amount: number) => {
   ]
 }
 
-const toIdPair = ({ id, pair }) => id && pair ? `${id}-${pair}` : "not-set"
+const toIdPair = contents => contents?.id && contents?.pair ? `${contents?.id}-${contents?.pair}` : "not-set"
 
 const generateDeck = (amount: number = 24) => {
   const [cards] = useState([...generateCards(amount)])
