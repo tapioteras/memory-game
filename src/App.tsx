@@ -42,7 +42,6 @@ const generateDeck = (amount: number = 24) => {
             } else if (!flipped2) {
               setFlipped2(contents)
             } else {
-              console.log("over")
               setFlipped1(null)
               setFlipped2(null)
             }
@@ -51,8 +50,9 @@ const generateDeck = (amount: number = 24) => {
           bg={[toIdPair(flipped1), toIdPair(flipped2)].includes(toIdPair(contents)) ? "white" : "tomato"}
           height={100}
           width={100}>
-          <Box padding={2}>
-            {contents.image}
+          <Box padding={2}
+          >
+            {[toIdPair(flipped1), toIdPair(flipped2)].includes(toIdPair(contents)) && contents.image}
           </Box>
         </Box>)}
   </SimpleGrid>
