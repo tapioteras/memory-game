@@ -71,7 +71,7 @@ const generateDeck = (amount: number = 24) => {
             if (!flipped1) {
               setFlipped1(contents)
             } else if (!flipped2) {
-              if (flipped1.id === contents.id) {
+              if (flipped1.id === contents.id && flipped1.pair === 1 && contents.pair === 2) {
                 setFlipped1(null)
                 setFlipped2(null)
                 setFoundPairs([...foundPairs, {...contents, foundByPlayerId: currentPlayerId}])
