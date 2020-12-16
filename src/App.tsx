@@ -1,21 +1,7 @@
 import * as React from 'react';
 import {Box, ChakraProvider, Flex, Heading, SimpleGrid} from "@chakra-ui/react";
 import {useState} from "react";
-
-const generateCards = (amount: number) => {
-  const withPair = (c, pair: 1 | 2) => ({...c, pair})
-  const cards = Array
-    .from(Array(amount), (_, x) => x)
-    .map((k, i) => ({
-      id: i + 1,
-    }))
-  return [
-    ...cards.map(c => withPair(c, 1)),
-    ...cards.map(c => withPair(c, 2))
-  ].map((c) => ({ ...c, image: `image-number-${c.id}-pair-${c.pair}` }))
-}
-
-const toIdPair = contents => contents?.id && contents?.pair ? `${contents?.id}-${contents?.pair}` : "not-set"
+import {imageNames} from "./cardImageUtil";
 
 const shuffle = (a) => {
   let j, x, i;
@@ -27,6 +13,22 @@ const shuffle = (a) => {
   }
   return a;
 }
+
+const getRandomImagePath = () => shuffle(imageNames)[0]
+
+const generateCards = (amount: number) => {
+  const withPair = (c, pair: 1 | 2) => ({...c, pair})
+  const cards = Array
+    .from(Array(amount), (_, x) => x)
+    .map((k, i) => ({ id: i + 1, }))
+    .map((c) => ({ ...c, image: <img src={getRandomImagePath()} /> }))
+  return [
+    ...cards.map(c => withPair(c, 1)),
+    ...cards.map(c => withPair(c, 2))
+  ]
+}
+
+const toIdPair = contents => contents?.id && contents?.pair ? `${contents?.id}-${contents?.pair}` : "not-set"
 
 const generateDeck = (amount: number = 24) => {
   const [cards, setCards] = useState(shuffle([...generateCards(amount)]))
@@ -62,7 +64,7 @@ const generateDeck = (amount: number = 24) => {
     <Heading>{`Player ${currentPlayerId} turn`}</Heading>
     <Heading size="m">Scores:</Heading>
     <Flex wrap={"wrap"}>
-    {scoreCard.map(sc => <Heading size="m">Player {sc.id}: {sc.gotPairs}</Heading>)}
+      <Flex direction="column">{scoreCard.map(sc => <Heading size="m">{`Player ${sc.id}: ${sc.gotPairs}`}</Heading>)}</Flex>
     <Flex flexWrap={"wrap"} columns={6} spacing={4}>
     {cards
       .map((contents, i) =>
@@ -71,10 +73,14 @@ const generateDeck = (amount: number = 24) => {
             if (!flipped1) {
               setFlipped1(contents)
             } else if (!flipped2) {
-              if (flipped1.id === contents.id && flipped1.pair === 1 && contents.pair === 2) {
+              if (flipped1.id === contents.id
+                && (flipped1.pair === 1 && contents.pair === 2
+                  || flipped1.pair === 2 && contents.pair === 1)) {
+                setFoundPairs([...foundPairs, {...contents, foundByPlayerId: currentPlayerId}])
                 setFlipped1(null)
                 setFlipped2(null)
-                setFoundPairs([...foundPairs, {...contents, foundByPlayerId: currentPlayerId}])
+              } else if(toIdPair(flipped1) === toIdPair(contents)) {
+                return
               } else {
                 setFlipped2(contents)
               }
