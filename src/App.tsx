@@ -15,6 +15,7 @@ const shuffle = (a) => {
 }
 
 const getRandomImagePath = () => shuffle(imageNames)[0]
+const distinct = (value, index, self) => self.indexOf(value) === index
 
 const generateCards = (amount: number) => {
   const withPair = (c, pair: 1 | 2) => ({...c, pair})
@@ -22,6 +23,7 @@ const generateCards = (amount: number) => {
     .from(Array(amount), (_, x) => x)
     .map((k, i) => ({ id: i + 1, }))
     .map((c) => ({ ...c, image: <img src={getRandomImagePath()} /> }))
+    .filter(distinct)
   return [
     ...cards.map(c => withPair(c, 1)),
     ...cards.map(c => withPair(c, 2))
